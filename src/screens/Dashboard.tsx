@@ -17,20 +17,14 @@ import {
   useStyleSheet,
 } from '@ui-kitten/components';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import 'react-native-get-random-values';
-import {v4 as uuidv4} from 'uuid';
 import {RootStackParamList} from '../App';
 import {AddIcon, OpenIcon} from '../ui/Icons';
 // firebase
 import {db} from '../../firebase-config';
-import {ref, push, get} from 'firebase/database';
+import {ref, get, onValue} from 'firebase/database';
+import {FlashcardStack} from './CreateFlashcardStack';
+import dayjs from 'dayjs';
 
-type FlashcardDetails = {
-  id: string;
-  name: string;
-  description: string;
-  date: string;
-};
 // const flashcardCollection: FlashcardDetails[] = [
 //   {
 //     id: uuidv4(),
@@ -57,17 +51,8 @@ type DashboardProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 const Dashboard = ({navigation}: DashboardProps) => {
   const styles = useStyleSheet(themedStyles);
   const [flashcardCollection, setFlashcardCollection] = React.useState<
-    FlashcardDetails[]
+    FlashcardStack[]
   >([]);
-
-  const addFlashcardStack = () => {
-    push(ref(db, '/flashcards'), {
-      id: uuidv4(),
-      name: 'Learn Korean NEW',
-      description: 'Prep for TOPIK 1',
-      date: '21.10.2023',
-    });
-  };
 
   const getCollection = async () => {
     try {
@@ -79,28 +64,19 @@ const Dashboard = ({navigation}: DashboardProps) => {
   };
 
   React.useEffect(() => {
-    // addFlashcardStack();
-    getCollection().then(snapshot => {
-      if (snapshot) {
-        const data: FlashcardDetails[] = Object.values(snapshot);
-        setFlashcardCollection(data);
-      } else {
-        setFlashcardCollection([]);
-      }
-    });
+    return onValue(
+      ref(db, '/flashcards'),
+      querySnapShot => {
+        if (querySnapShot.exists()) {
+          const data: FlashcardStack[] = querySnapShot
+            ? Object.values(querySnapShot.val())
+            : [];
 
-    // return onValue(
-    //   ref(db, '/flashcards'),
-    //   querySnapShot => {
-    //     if (querySnapShot) {
-    //       const data: FlashcardDetails[] = querySnapShot
-    //         ? Object.values(querySnapShot.val())
-    //         : [];
-    //       setFlashcardCollection(data);
-    //     }
-    //   },
-    //   error => console.error(error, 'fuck off'),
-    // );
+          setFlashcardCollection(data);
+        }
+      },
+      error => console.error(error, 'fuck off'),
+    );
   }, []);
 
   const navigateFlashcardStack = (id: string, name: string) => {
@@ -109,6 +85,20 @@ const Dashboard = ({navigation}: DashboardProps) => {
 
   const navigateCreateFlashcardStack = () => {
     navigation.navigate('CreateFlashcardStack');
+  };
+
+  const getDate = (itemDate: string) => {
+    const today = dayjs().format('DD.MM.YYYY');
+    const yesterday = dayjs().subtract(1, 'day').format('DD.MM.YYYY');
+
+    if (itemDate === today) {
+      return 'Today';
+    }
+    if (itemDate === yesterday) {
+      return 'Yesterday';
+    }
+
+    return itemDate;
   };
 
   const renderAccountAction = (): React.ReactElement => (
@@ -142,7 +132,7 @@ const Dashboard = ({navigation}: DashboardProps) => {
                   <Text category="h6">{flashcard.item.name}</Text>
                   <Text category="s1">{flashcard.item.description}</Text>
                   <Text category="c1" style={styles.cardDate}>
-                    {flashcard.item.date}
+                    {getDate(flashcard.item.date)}
                   </Text>
                 </View>
 
@@ -205,7 +195,7 @@ const themedStyles = StyleSheet.create({
     marginBottom: 20,
     padding: 20,
     borderRadius: 8,
-    backgroundColor: 'color-basic-200',
+    backgroundColor: '#F7F9FC',
     shadowColor: '#171717',
     shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
