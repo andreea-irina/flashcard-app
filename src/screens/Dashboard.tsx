@@ -1,25 +1,38 @@
 import * as React from 'react';
-import {View, Text, StyleSheet, Button} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
+import {
+  Button,
+  Divider,
+  Layout,
+  Text,
+  TopNavigation,
+} from '@ui-kitten/components';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../App';
 
 type DashboardProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
 const Dashboard = ({navigation}: DashboardProps) => {
-  return (
-    <View style={styles.contianer}>
-      <Text>Dashboard</Text>
+  const navigateFlashcardStack = () => {
+    navigation.navigate('FlashcardStack', {stackId: '0', stackName: 'fucker'});
+  };
 
-      <Button
-        title="go"
-        onPress={() => navigation.navigate('FlashcardStack', {stackId: '0'})}
-      />
-    </View>
+  return (
+    <SafeAreaView style={styles.container}>
+      <TopNavigation title="Flashcard Collection" alignment="center" />
+      <Divider />
+
+      <Layout style={styles.layout}>
+        <Text category="h1">Dashboard</Text>
+        <Button onPress={navigateFlashcardStack}>FlashcardStack</Button>
+      </Layout>
+    </SafeAreaView>
   );
 };
 
 export default Dashboard;
 
 const styles = StyleSheet.create({
-  contianer: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  container: {flex: 1},
+  layout: {flex: 1, alignItems: 'center', justifyContent: 'center'},
 });

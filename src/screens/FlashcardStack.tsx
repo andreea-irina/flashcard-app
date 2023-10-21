@@ -1,5 +1,13 @@
 import * as React from 'react';
-import {View, Text, StyleSheet, Button} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
+import {
+  Divider,
+  Icon,
+  Layout,
+  Text,
+  TopNavigation,
+  TopNavigationAction,
+} from '@ui-kitten/components';
 import {
   NativeStackScreenProps,
   NativeStackNavigationProp,
@@ -7,25 +15,45 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../App';
 
+const BackIcon = (props: any) => <Icon {...props} name="arrow-back" />;
+
 type FlashcardStackProps = NativeStackScreenProps<
   RootStackParamList,
   'FlashcardStack'
 >;
 
 const FlashcardStack = ({route}: FlashcardStackProps) => {
-  const {stackId} = route.params;
+  const {stackId, stackName} = route.params;
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const navigateBack = () => {
+    navigation.goBack();
+  };
+
+  const BackAction = () => (
+    <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
+  );
+
   return (
-    <View style={styles.contianer}>
-      <Text>FlashcardStack</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <TopNavigation
+        title={stackName}
+        alignment="center"
+        accessoryLeft={BackAction}
+      />
+
+      <Divider />
+      <Layout style={styles.layout}>
+        <Text category="h1">FlashcardStack</Text>
+      </Layout>
+    </SafeAreaView>
   );
 };
 
 export default FlashcardStack;
 
 const styles = StyleSheet.create({
-  contianer: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  container: {flex: 1},
+  layout: {flex: 1, alignItems: 'center', justifyContent: 'center'},
 });
