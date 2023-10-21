@@ -12,10 +12,12 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Dashboard from './screens/Dashboard';
 import FlashcardStack from './screens/FlashcardStack';
 import Account from './screens/Account';
+import CreateFlashcardStack from './screens/CreateFlashcardStack';
 
 export type RootStackParamList = {
   Dashboard: undefined;
   FlashcardStack: {stackId: string; stackName: string};
+  CreateFlashcardStack: undefined;
   Account: undefined;
 };
 
@@ -37,6 +39,10 @@ function App(): JSX.Element {
             />
 
             <Stack.Screen name="FlashcardStack" component={FlashcardStack} />
+            <Stack.Screen
+              name="CreateFlashcardStack"
+              component={CreateFlashcardStack}
+            />
 
             <Stack.Screen name="Account" component={Account} />
           </Stack.Navigator>

@@ -1,12 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 import * as React from 'react';
-import {ImageBackground, SafeAreaView, StyleSheet, View} from 'react-native';
+import {
+  FlatList,
+  ImageBackground,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {
   Avatar,
   Button,
   Divider,
   Layout,
-  List,
   Text,
   TopNavigation,
   useStyleSheet,
@@ -18,7 +23,7 @@ import {RootStackParamList} from '../App';
 import {AddIcon, OpenIcon} from '../ui/Icons';
 // firebase
 import {db} from '../../firebase-config';
-import {ref, onValue, push, update, remove} from 'firebase/database';
+import {ref, push, get} from 'firebase/database';
 
 type FlashcardDetails = {
   id: string;
@@ -26,26 +31,26 @@ type FlashcardDetails = {
   description: string;
   date: string;
 };
-const flashcardCollection: FlashcardDetails[] = [
-  {
-    id: uuidv4(),
-    name: 'Learn Korean',
-    description: 'Prep for TOPIK 1',
-    date: 'Today',
-  },
-  {
-    id: uuidv4(),
-    name: 'Algebra 1',
-    description: 'Formulas for exam',
-    date: 'Yesterday',
-  },
-  {
-    id: uuidv4(),
-    name: 'Interview',
-    description: '100 interview questions about React hghudwedwe',
-    date: '22.09.2023',
-  },
-];
+// const flashcardCollection: FlashcardDetails[] = [
+//   {
+//     id: uuidv4(),
+//     name: 'Learn Korean',
+//     description: 'Prep for TOPIK 1',
+//     date: 'Today',
+//   },
+//   {
+//     id: uuidv4(),
+//     name: 'Algebra 1',
+//     description: 'Formulas for exam',
+//     date: 'Yesterday',
+//   },
+//   {
+//     id: uuidv4(),
+//     name: 'Interview',
+//     description: '100 interview questions about React hghudwedwe',
+//     date: '22.09.2023',
+//   },
+// ];
 
 type DashboardProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
@@ -55,7 +60,7 @@ const Dashboard = ({navigation}: DashboardProps) => {
     FlashcardDetails[]
   >([]);
 
-  const addNewFlashcardStack = () => {
+  const addFlashcardStack = () => {
     push(ref(db, '/flashcards'), {
       id: uuidv4(),
       name: 'Learn Korean NEW',
@@ -64,20 +69,53 @@ const Dashboard = ({navigation}: DashboardProps) => {
     });
   };
 
+  const getCollection = async () => {
+    try {
+      const snapshot = await get(ref(db, '/flashcards'));
+      return snapshot.val();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   React.useEffect(() => {
-    addNewFlashcardStack();
-    return onValue(ref(db, '/flashcards'), querySnapShot => {
-      let data: FlashcardDetails[] = Object.values(querySnapShot.val()) || [];
-      setFlashcardCollection(data);
+    // addFlashcardStack();
+    getCollection().then(snapshot => {
+      if (snapshot) {
+        const data: FlashcardDetails[] = Object.values(snapshot);
+        setFlashcardCollection(data);
+      } else {
+        setFlashcardCollection([]);
+      }
     });
+
+    // return onValue(
+    //   ref(db, '/flashcards'),
+    //   querySnapShot => {
+    //     if (querySnapShot) {
+    //       const data: FlashcardDetails[] = querySnapShot
+    //         ? Object.values(querySnapShot.val())
+    //         : [];
+    //       setFlashcardCollection(data);
+    //     }
+    //   },
+    //   error => console.error(error, 'fuck off'),
+    // );
   }, []);
 
   const navigateFlashcardStack = (id: string, name: string) => {
     navigation.navigate('FlashcardStack', {stackId: id, stackName: name});
   };
 
+  const navigateCreateFlashcardStack = () => {
+    navigation.navigate('CreateFlashcardStack');
+  };
+
   const renderAccountAction = (): React.ReactElement => (
-    <Button appearance="ghost" onPress={() => navigation.navigate('Account')}>
+    <Button
+      appearance="ghost"
+      size="tiny"
+      onPress={() => navigation.navigate('Account')}>
       <Avatar
         source={require('../assets/user.png')}
         ImageComponent={ImageBackground}
@@ -87,42 +125,46 @@ const Dashboard = ({navigation}: DashboardProps) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopNavigation
-        alignment="center"
-        title="Flashcards App <3"
-        accessoryRight={renderAccountAction}
-      />
+      <TopNavigation alignment="center" accessoryRight={renderAccountAction} />
 
       <Layout style={styles.layout}>
         <Text category="h3" style={styles.title}>
           Collection
         </Text>
 
-        <List
-          data={flashcardCollection}
-          style={styles.list}
-          renderItem={flashcard => (
-            <View style={styles.card}>
-              <View style={{width: '80%'}}>
-                <Text category="h6">{flashcard.item.name}</Text>
-                <Text category="s1">{flashcard.item.description}</Text>
-                <Text category="c1" style={styles.cardDate}>
-                  {flashcard.item.date}
-                </Text>
-              </View>
+        {flashcardCollection.length > 0 ? (
+          <FlatList
+            data={flashcardCollection}
+            style={styles.list}
+            renderItem={flashcard => (
+              <View style={styles.card}>
+                <View style={{width: '80%'}}>
+                  <Text category="h6">{flashcard.item.name}</Text>
+                  <Text category="s1">{flashcard.item.description}</Text>
+                  <Text category="c1" style={styles.cardDate}>
+                    {flashcard.item.date}
+                  </Text>
+                </View>
 
-              <Button
-                style={styles.button}
-                size="small"
-                // appearance="ghost"
-                accessoryLeft={OpenIcon}
-                onPress={() =>
-                  navigateFlashcardStack(flashcard.item.id, flashcard.item.name)
-                }
-              />
-            </View>
-          )}
-        />
+                <Button
+                  style={styles.button}
+                  size="small"
+                  accessoryLeft={OpenIcon}
+                  onPress={() =>
+                    navigateFlashcardStack(
+                      flashcard.item.id,
+                      flashcard.item.name,
+                    )
+                  }
+                />
+              </View>
+            )}
+          />
+        ) : (
+          <View style={styles.placeholder}>
+            <Text category="p1">Nothing to see here yet.</Text>
+          </View>
+        )}
 
         <View style={styles.bottom}>
           <Divider />
@@ -130,7 +172,8 @@ const Dashboard = ({navigation}: DashboardProps) => {
             appearance="ghost"
             accessoryLeft={AddIcon}
             style={styles.buttonNew}
-            size="giant">
+            size="giant"
+            onPress={() => navigateCreateFlashcardStack()}>
             NEW FLASHCARD STACK
           </Button>
         </View>
@@ -148,7 +191,7 @@ const themedStyles = StyleSheet.create({
     position: 'relative',
   },
   title: {
-    paddingVertical: 10,
+    paddingBottom: 10,
     paddingHorizontal: 20,
   },
   list: {
@@ -180,11 +223,16 @@ const themedStyles = StyleSheet.create({
     paddingVertical: 20,
   },
   bottom: {
-    position: 'absolute',
+    // position: 'sticky',
     bottom: 0,
     left: 0,
     right: 0,
     width: '100%',
     backgroundColor: 'white',
+  },
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
