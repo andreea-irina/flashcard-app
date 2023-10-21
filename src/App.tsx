@@ -11,10 +11,12 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 // screens
 import Dashboard from './screens/Dashboard';
 import FlashcardStack from './screens/FlashcardStack';
+import Account from './screens/Account';
 
 export type RootStackParamList = {
   Dashboard: undefined;
   FlashcardStack: {stackId: string; stackName: string};
+  Account: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,11 +36,9 @@ function App(): JSX.Element {
               options={{title: 'Overview'}}
             />
 
-            <Stack.Screen
-              name="FlashcardStack"
-              component={FlashcardStack}
-              options={{title: 'Flashcard'}}
-            />
+            <Stack.Screen name="FlashcardStack" component={FlashcardStack} />
+
+            <Stack.Screen name="Account" component={Account} />
           </Stack.Navigator>
         </NavigationContainer>
       </ApplicationProvider>
