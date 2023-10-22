@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {SafeAreaView, ScrollView, StyleSheet, View} from 'react-native';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {
   Divider,
   Button,
@@ -11,6 +11,7 @@ import {
   Card,
 } from '@ui-kitten/components';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import 'react-native-get-random-values';
 import {v4 as uuidv4} from 'uuid';
 import dayjs from 'dayjs';
@@ -53,7 +54,6 @@ const CreateFlashcardStack = ({navigation}: CreateFlashcardStackProps) => {
 
   const addFlashcardStack = () => {
     push(ref(db, '/flashcards'), {
-      id: uuidv4(),
       name: formValues.name,
       description: formValues.description,
       date: dayjs().format('DD.MM.YYYY'),
@@ -69,7 +69,7 @@ const CreateFlashcardStack = ({navigation}: CreateFlashcardStackProps) => {
     };
 
     if (formValues.cards) {
-      setFormValues({...formValues, cards: [...formValues.cards, newCard]});
+      setFormValues({...formValues, cards: [newCard, ...formValues.cards]});
     } else {
       setFormValues({...formValues, cards: [newCard]});
     }
@@ -90,7 +90,7 @@ const CreateFlashcardStack = ({navigation}: CreateFlashcardStackProps) => {
       <Divider />
 
       <Layout style={styles.layout}>
-        <ScrollView>
+        <KeyboardAwareScrollView>
           <Text category="h3" style={styles.sectionTitle}>
             General
           </Text>
@@ -162,7 +162,7 @@ const CreateFlashcardStack = ({navigation}: CreateFlashcardStackProps) => {
                 </Text>
               </View>
             ))}
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </Layout>
 
       <View style={styles.bottom}>
@@ -202,10 +202,15 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 10,
     backgroundColor: '#F7F9FC',
+    shadowColor: '#171717',
+    shadowOffset: {width: -2, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 1,
   },
 
   bottom: {
-    position: 'absolute',
+    // position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,

@@ -72,7 +72,18 @@ const Dashboard = ({navigation}: DashboardProps) => {
             ? Object.values(querySnapShot.val())
             : [];
 
-          setFlashcardCollection(data);
+          const ids: string[] = Object.keys(querySnapShot.val());
+
+          console.log();
+
+          setFlashcardCollection(
+            data.map((elem, index) => {
+              return {
+                ...elem,
+                id: ids[index],
+              };
+            }),
+          );
         }
       },
       error => console.error(error, 'fuck off'),
