@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import {
+  Button,
   Divider,
   Layout,
   Text,
@@ -26,11 +27,7 @@ import {RootStackParamList} from '../App';
 import {db} from '../../firebase-config';
 import {ref, get} from 'firebase/database';
 import {Flashcard} from './CreateFlashcardStack';
-import {BackIcon} from '../ui/Icons';
-
-const CARD_WIDTH = Dimensions.get('window').width * 0.8;
-const CARD_HEIGHT = Dimensions.get('window').height * 0.5;
-const SPACING_FOR_CARD_INSET = Dimensions.get('window').width * 0.1 - 20;
+import {BackIcon, FlipIcon, NextIcon, PrevIcon} from '../ui/Icons';
 
 type FlashcardStackProps = NativeStackScreenProps<
   RootStackParamList,
@@ -116,6 +113,57 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
 
       <Divider />
       <Layout style={styles.layout}>
+        {cards && cards.length > 0 && (
+          <>
+            <View style={styles.card}>
+              {showAnswer ? (
+                <Text category="h5">{cards[activeCard].answer}</Text>
+              ) : (
+                <Text category="h4">{cards[activeCard].question}</Text>
+              )}
+            </View>
+
+            <View style={styles.actions}>
+              <Button
+                status={showAnswer ? 'info' : 'primary'}
+                accessoryLeft={<FlipIcon />}
+                onPress={() => setShowAnswer(!showAnswer)}>
+                {showAnswer ? 'QUESTION' : 'ANSWER'}
+              </Button>
+            </View>
+
+            <View style={styles.navigation}>
+              <Button
+                appearance="outline"
+                style={{width: '40%'}}
+                disabled={activeCard === 0}
+                accessoryLeft={<PrevIcon />}
+                onPress={() => {
+                  setActiveCard(activeCard - 1);
+                  setShowAnswer(false);
+                }}>
+                PREVIOUS
+              </Button>
+
+              <Text category="c1">
+                {activeCard + 1}/{cards.length}
+              </Text>
+
+              <Button
+                appearance="outline"
+                style={{width: '40%'}}
+                disabled={activeCard + 1 === cards.length}
+                accessoryRight={<NextIcon />}
+                onPress={() => {
+                  setActiveCard(activeCard + 1);
+                  setShowAnswer(false);
+                }}>
+                NEXT
+              </Button>
+            </View>
+          </>
+        )}
+
         {/* <FlatList
           horizontal
           style={{backgroundColor: '#6b6b6b', height: 250}}
@@ -176,11 +224,10 @@ const styles = StyleSheet.create({
   container: {flex: 1},
   layout: {flex: 1},
   card: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
+    height: '50%',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 5,
+    margin: 20,
     borderRadius: 15,
     backgroundColor: '#F7F9FC',
     shadowColor: '#171717',
@@ -188,5 +235,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 1,
+  },
+  actions: {
+    marginHorizontal: 20,
+  },
+  navigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 20,
   },
 });

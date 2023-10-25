@@ -18,3 +18,13 @@ export const DeleteIcon = (props: IconProps) => (
 export const LogOutIcon = (props: IconProps) => (
   <Icon {...props} name="log-out" />
 );
+
+export const PrevIcon = (props: IconProps) => (
+  <Icon {...props} name="arrow-left-outline" />
+);
+
+export const NextIcon = (props: IconProps) => (
+  <Icon {...props} name="arrow-right-outline" />
+);
+
+export const FlipIcon = (props: IconProps) => <Icon {...props} name="flip-2" />;
