@@ -113,7 +113,7 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
 
       <Divider />
       <Layout style={styles.layout}>
-        {cards && cards.length > 0 && (
+        {cards && cards.length > 0 ? (
           <>
             <View style={styles.card}>
               {showAnswer ? (
@@ -162,6 +162,10 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
               </Button>
             </View>
           </>
+        ) : (
+          <View style={styles.placeholder}>
+            <Text category="p1">Nothing to see here yet.</Text>
+          </View>
         )}
 
         {/* <FlatList
@@ -244,5 +248,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     margin: 20,
+  },
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
