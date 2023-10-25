@@ -52,7 +52,7 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
   const pan = React.useRef(new Animated.ValueXY()).current;
 
   const navigateBack = () => {
-    navigation.goBack();
+    navigation.pop(1);
   };
 
   const getStack = async () => {
@@ -68,7 +68,8 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
     getStack()
       .then(snapshot => setCards(snapshot.cards))
       .catch(error => console.error(error, 'fuck off'));
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigateBack} />
@@ -141,7 +142,7 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
           // )}
           renderItem={renderItem}
         /> */}
-        <ScrollView
+        {/* <ScrollView
           horizontal
           pagingEnabled
           decelerationRate={0}
@@ -163,7 +164,7 @@ const FlashcardStack = ({route}: FlashcardStackProps) => {
               <Text>{card.question}</Text>
             </View>
           ))}
-        </ScrollView>
+        </ScrollView> */}
       </Layout>
     </SafeAreaView>
   );
