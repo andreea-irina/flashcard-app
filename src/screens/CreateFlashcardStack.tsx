@@ -57,7 +57,7 @@ const CreateFlashcardStack = ({navigation}: CreateFlashcardStackProps) => {
       name: formValues.name,
       description: formValues.description,
       date: dayjs().format('DD.MM.YYYY'),
-      cards: formValues.cards,
+      cards: formValues.cards ? formValues.cards : [],
     }).then(() => navigation.pop(1));
   };
 
